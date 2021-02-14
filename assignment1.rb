@@ -59,6 +59,8 @@ startMin = timeSplit[1].to_i
 
 if startMin < 10
 	startMin = "0" + startMin.to_s
+else
+	startMin = startMin.to_s
 end
 
 if startHour > 12
@@ -77,7 +79,7 @@ if runSplit.length() != 2
 	abort("ERROR: Incorrect format entered")
 end
 
-if runSplit[1].to_i > 30
+if runSplit[1].to_i > 29
 	runTime = runSplit[0].to_i + 1
 else
 	runTime = runSplit[0].to_i
@@ -102,6 +104,8 @@ groupCount = gets.chomp.to_i
 #########################################
 
 avail = []
+finalSched = []
+
 for i in roomsTable
 	if i["Capacity"].to_i >= attendees
 		#puts i["Capacity"]
@@ -109,7 +113,9 @@ for i in roomsTable
 	end
 end
 
-for i in avail
-	
+puts avail.length()
+
+for i in 0..(avail.length() - 1)
+	puts i
 
 end
