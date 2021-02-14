@@ -27,7 +27,6 @@ else
 	abort("ERROR: " + file1 + " does not exist!")
 end
 
-=begin
 
 print "Input the name of the file with data about availability of rooms on campus: "
 file2 = gets.chomp
@@ -38,6 +37,7 @@ else
 	abort("ERROR: " + file2 + " does not exist!")
 end
 
+
 print "What date will HackTCNJ be held? (yyyy-mm-dd): "
 date = gets.chomp
 Date.iso8601(date)
@@ -46,46 +46,70 @@ for i in dateSplit
 	puts i.to_i
 end
 
+
 print "What time will HackTCNJ start? (hh:mm (24-hour clock)): "
-timeStart = gets.chomp
-timeSplit = timeStart.split(':')
+timeGet = gets.chomp
+timeSplit = timeGet.split(':')
 if timeSplit.length() != 2
 	abort("ERROR: Incorrect format entered")
 end
-for i in timeSplit
-	puts i.to_i
+
+startHour = timeSplit[0].to_i
+startMin = timeSplit[1].to_i
+
+if startMin < 10
+	startMin = "0" + startMin.to_s
 end
 
+if startHour > 12
+	startHour -= 12
+	timeStart = startHour.to_s + ":" + startMin + " PM"
+else
+	timeStart = startHour.to_s + ":" + startMin + " AM"
+end
+puts timeStart
+
+
 print "How long will HackTCNJ run? (hh:mm): "
-runTime = gets.chomp
-runSplit = runTime.split(':')
+runGet = gets.chomp
+runSplit = runGet.split(':')
 if runSplit.length() != 2
 	abort("ERROR: Incorrect format entered")
 end
-for i in runSplit
-	puts i.to_i
+
+if runSplit[1].to_i > 30
+	runTime = runSplit[0].to_i + 1
+else
+	runTime = runSplit[0].to_i
 end
+puts runTime
+
 
 print "How many people will be attending? "
 attendees = gets.chomp.to_i
-puts attendees
 
-print "How many groups will there be? "
-groupNum = gets.chomp.to_i
-puts groupNum
+#print "How many groups will there be? "
+#groupNum = gets.chomp.to_i
+#puts groupNum
 
-print "What is the maximum number of people in each group? "
-groupMax = gets.chomp.to_i
-puts groupMax
+#print "What is the maximum number of people in each group? "
+#groupMax = gets.chomp.to_i
+#puts groupMax
 
 print "How many people will be in groups? "
 groupCount = gets.chomp.to_i
-puts groupCount
-=end
 
 #########################################
 
+avail = []
 for i in roomsTable
+	if i["Capacity"].to_i >= attendees
+		#puts i["Capacity"]
+		avail << i
+	end
+end
+
+for i in avail
 	
 
-
+end
