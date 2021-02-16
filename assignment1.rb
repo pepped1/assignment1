@@ -15,6 +15,34 @@ def rooms_sort(array)
 	array
 end
 
+def neaten(hour, min)
+	if min < 10
+		min = "0" + min.to_s
+	end
+	if hour > 12
+		hour -= 12
+		handle = "PM"
+	else
+		handle = "AM"
+	end
+	if hour < 10
+		hour = "0" + hour.to_s
+	end
+	time = hour.to_s + ":" + min.to_s + " " + handle
+end
+
+def arrayShift(array, pos)
+	if pos.between?(0, array.length - 1)
+		for i in (pos)..(array.length - 2)
+			array[i] = array[i+1]
+		end
+		array.delete_at (array.length - 1)
+		array
+	else
+		abort("ERROR: Tried to replace an element out of scope")
+	end
+end
+
 #########################################
 
 print "Input the name of the file with data about rooms on campus: "
@@ -38,14 +66,10 @@ else
 end
 
 
-print "What date will HackTCNJ be held? (yyyy-mm-dd): "
+print "What date will HackTCNJ start? (yyyy-mm-dd): "
 date = gets.chomp
 Date.iso8601(date)
-dateSplit = date.split('-')
-for i in dateSplit
-	puts i.to_i
-end
-
+puts date
 
 print "What time will HackTCNJ start? (hh:mm (24-hour clock)): "
 timeGet = gets.chomp
@@ -55,20 +79,11 @@ if timeSplit.length() != 2
 end
 
 startHour = timeSplit[0].to_i
-startMin = timeSplit[1].to_i
+startMin = 0
+#obviously would be changed in full version
 
-if startMin < 10
-	startMin = "0" + startMin.to_s
-else
-	startMin = startMin.to_s
-end
+timeStart = neaten startHour, startMin
 
-if startHour > 12
-	startHour -= 12
-	timeStart = startHour.to_s + ":" + startMin + " PM"
-else
-	timeStart = startHour.to_s + ":" + startMin + " AM"
-end
 puts timeStart
 
 
@@ -105,6 +120,7 @@ groupCount = gets.chomp.to_i
 
 avail = []
 finalSched = []
+present = []
 
 for i in roomsTable
 	if i["Capacity"].to_i >= attendees
@@ -113,9 +129,41 @@ for i in roomsTable
 	end
 end
 
-puts avail.length()
-
-for i in 0..(avail.length() - 1)
-	puts i
-
+for i in 0..(avail.length - 1)
+	j=0
+	while j < schedTable.length
+		if schedTable[j]["Date"] == date
+			if schedTable[j]["Room"] == avail[i][1]
+				if schedTable[j]["Building"] == avail[i][0]
+					if schedTable[j]["Time"] == timeStart
+						if schedTable[j]["Available"] == "true"
+							temp = []
+							temp << date
+							temp << timeStart
+							temp << schedTable[j]["Building"]
+							temp << "Room " + schedTable[j]["Room"]
+							temp << "Capacity: " + avail[i][2]
+							temp << "Computers Available: " + avail[i][3]
+							temp << "Food Allowed: " + avail[i][6]
+							present << temp
+						end
+						break
+					else
+						j += 1
+					end
+				else
+					j += 24
+				end
+			else
+				j += 24
+			end
+		else
+			j += 24
+		end
+	end			
 end
+
+puts present
+
+#print "Which room do you want the opening ceremony in? (Enter the number next to the room)" 
+
