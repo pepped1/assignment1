@@ -1,6 +1,6 @@
 Dean Peppe
 CSC415-01
-Assignment 1
+Assignment 1 Resubmission
 
 
 To run, the program needs
@@ -16,7 +16,9 @@ During execution, the program needs user input to
 -choose which rooms to reserve
 -choose the name of the new schedule file
 
-Known limitations:
--Does not do anything with group or individual data
--Does not accept start times unless they are on the hour (automatically rounds down to the hour)
--Does not accept run times unless they are on the hour (properly rounds them up or down)
+Revisions:
+-changed variable and method names to better reflect their use and added constant variables
+-adjusted and added methods for improved code readability
+-repeats the prompt instead of aborting when an invalid input is entered using proper exception handling
+-improved readability for output rooms in program and file
+-removed embarrassing debugging output

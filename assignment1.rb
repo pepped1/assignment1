@@ -1,47 +1,60 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 require 'csv'
 
-# Deam Peppe
+# Dean Peppe
 # CSC415-01
-# Assignment 1
+# Assignment 1 Resubmission
+
+Percent_attendees_eating = 0.6
+Percent_attendees_no_computer = 0.1
 
 # used to sort rooms.csv
 def rooms_sort(array)
- 	(array.length).times do |i|
-		while i > 0
-			if array[i-1][2].to_i > array[i][2].to_i
-				array[i], array[i-1] = array[i-1], array[i]
-			else
-				break
-			end
-			i-=1
-		end
-	end
-	array
+    for i in 0..array.length - 1 do
+        j = i
+        while (j > 0) && (array[j-1][2].to_i > array[j][2].to_i)  
+            array[j], array[j-1] = array[j-1], array[j]
+            j-=1
+        end
+    end
+    array
 end
 
-# takes integers for time and returns a string that matches time in schedule.csv
-def neaten(hour, min)
+# formats the integer given for hour
+def formatHour(hour)
+	if hour == 0
+		hour = "12"
+	elsif hour < 10
+		hour = "0" + hour.to_s
+	else
+		hour = hour.to_s
+	end
+end
+
+# formats the integer given for minutes
+def formatMin(min)
 	if min < 10
 		min = "0" + min.to_s
+	else
+		min = min.to_s
 	end
+end
+
+# takes integers for time and returns a string that matches the times in schedule.csv
+def formatTime(hour, min)
 	if hour > 12
 		hour -= 12
 		handle = "PM"
 	else
 		handle = "AM"
 	end
-	if hour == 0
-		hour = 12
-	end
-	if hour < 10
-		hour = "0" + hour.to_s
-	end
-	time = hour.to_s + ":" + min.to_s + " " + handle
+	hourReal = formatHour hour
+	minReal = formatMin min
+	time = hourReal + ":" + minReal + " " + handle
 end
 
 # increments the time (only hours in this state)
-def timeInc(hour)
+def incrementHour(hour)
 	hour += 1
 	if hour == 24
 		hour = 0
@@ -50,54 +63,100 @@ def timeInc(hour)
 end
 
 # increments the days (no support for months/years)
-def dayInc(date)
+def incrementDay(date)
 	dateSplit = date.split('-')
 	day = dateSplit[2].to_i + 1
 	date = dateSplit[0] + "-" + dateSplit[1] + "-" + day.to_s
 end	
 
+# checks the validity of the input for reserving rooms
+def roomReserveCheck(array, oneRoomFlag, numberOfOptions)
+	error = false
+	if array.length == 0 # option to not reserve anything
+		error = false
+	elsif oneRoomFlag # must only choose one room
+		if array.length == 1 && array[0].to_i.between?(1,numberOfOptions)
+			error = false
+		else
+			error = true
+		end
+	else
+		for j in array # can choose multiple rooms
+			if !(j.to_i.between?(1,numberOfOptions)) 
+				# if any of the elements entered are not between 1 and the number of options given
+				# an error has occurred
+				error = true
+				break
+			end
+		end
+	end
+	error
+end
+
+
+# ***** program starts here *****
+
+
 # these two blocks handle the file input
 print "Input the name of the file with data about rooms on campus: "
-file1 = gets.chomp
-if File.file?(file1)
+begin
+	file1 = gets.chomp
 	roomsTable = CSV.parse(File.read(file1), headers: true)
-	puts file1 + " successfully read!"
-	rooms_sort roomsTable
-else
-	abort("ERROR: " + file1 + " does not exist!")
+	if roomsTable
+		puts file1 + " successfully read!"
+	end
+rescue
+	puts "ERROR: " + file1 + " does not exist!"
+	retry
 end
-
 
 print "Input the name of the file with data about availability of rooms on campus: "
-file2 = gets.chomp
-if File.file?(file2)
+begin
+	file2 = gets.chomp
 	schedTable = CSV.parse(File.read(file2), headers: true)
-	puts file2 + " successfully read!"
-else
-	abort("ERROR: " + file2 + " does not exist!")
+	if schedTable
+		puts file2 + " successfully read!"
+	end
+rescue
+	puts "ERROR: " + file2 + " does not exist!"
+	retry
 end
 
-
+# requests start date
 print "What date will HackTCNJ start? (yyyy-mm-dd): "
-date = gets.chomp
-Date.iso8601(date) # throws an error when not in the correct format
+begin
+	date = gets.chomp
+	Date.iso8601(date) # throws an error when not in correct format
+rescue
+	puts "ERROR: Invalid date entered!"
+	retry
+end
 
+# requests time start
 print "What time will HackTCNJ start? (hh:mm (24-hour clock)): "
-timeGet = gets.chomp
-timeSplit = timeGet.split(':')
-if (timeSplit.length != 2) || (timeSplit[0].to_i > 24) || !(timeSplit[1].to_i.between?(0,59))
-	abort("ERROR: Incorrect format entered")
+while true
+	timeGet = gets.chomp
+	timeSplit = timeGet.split(':')
+	if (timeSplit.length != 2) || !(timeSplit[0].to_i.between?(0,23)) || !(timeSplit[1].to_i.between?(0,59))
+		puts "ERROR: Incorrect time entered!"
+	else
+		break
+	end
 end
 
 startHour = timeSplit[0].to_i
-startMin = 0 # program cannot handle minutes other than zero
+startMin = 0 # program does not process times with minutes other than zero
 
 
 print "How long will HackTCNJ run? (hh:mm): "
-runGet = gets.chomp
-runSplit = runGet.split(':')
-if (runSplit.length != 2) || !(runSplit[1].to_i.between?(0,59))
-	abort("ERROR: Incorrect format entered")
+while true
+	runGet = gets.chomp
+	runSplit = runGet.split(':')
+	if (runSplit.length != 2) || (runSplit[0].to_i < 1) || !(runSplit[1].to_i.between?(0,59))
+		puts "ERROR: Incorrect format entered!"
+	else
+		break
+	end
 end
 
 # rounds to the hour (since minutes are not handled)
@@ -109,108 +168,113 @@ end
 
 
 print "How many people will be attending? "
-attendees = gets.chomp.to_i
-
-if attendees <= 0
-	abort("ERROR: Invalid number of attendees entered. Must be above zero.")
+while true
+	attendees = gets.chomp.to_i
+	if attendees <= 0
+		puts "ERROR: Invalid number of attendees entered! Must be above zero."
+	else
+		break
+	end
 end
 
 
 print "How many people will be in groups? "
-groupCount = gets.chomp.to_i
-if !groupCount.between?(0,attendees)
-	abort("ERROR: Invalid number of group members entered.")
+while true
+	groupCount = gets.chomp.to_i
+	if !groupCount.between?(0,attendees)
+		puts "ERROR: Invalid number of group members entered!"
+	else
+		break
+	end
 end
 indCount = attendees - groupCount
-hungryCount = (attendees * 0.6).ceil
-compCount = (attendees * 0.1).ceil
+hungryCount = (attendees * Percent_attendees_eating).ceil
+compCount = (attendees * Percent_attendees_no_computer).ceil
 
-
-finalSched = []
+finalSchedule = []
 
 for i in 0..(runTime)
-	avail = [] #array of rooms that have the space
-	present = [] #array of rooms that have the space and are open
-	fill = false #flag used with ceremonies
-	msg = "" #message used later
-	snackTime = false #flag used to tell the program its time to eat
-	roomFlag = false #flag used for ceremony rooms
-	timeStart = neaten startHour, startMin #time in readable string format
+	availableRooms = [] # array of rooms that have the space
+	presentableRooms = [] # array of rooms that have the space and are open
+	fitAllFlag = false # flag used with ceremonies
+	roomPrompt = "" # variable used in a prompt later
+	snackTime = false # flag used to tell the program its time to eat
+	roomFlag = false # flag used for ceremony rooms
+	timeStart = formatTime startHour, startMin # time in readable string format
 
 	if (i % 6 == 3) && (runTime >= 6)
 		snackTime = true
 	end
 
 	if i == 0
-		fill = true
-		msg = "Which room do you want to reserve for the opening ceremony? "
+		fitAllFlag = true
+		roomPrompt = "Which room do you want to reserve for the opening ceremony? "
 	elsif i == runTime
-		fill = true
-		msg = "Which room do you want to reserve for the closing ceremony? "
+		fitAllFlag = true
+		roomPrompt = "Which room do you want to reserve for the closing ceremony? "
 	elsif snackTime
-		roomFlag = true #not a ceremony time
-		msg = "Which rooms do you want to reserve for HackTCNJ and for eating? "
+		roomFlag = true # not a ceremony time
+		roomPrompt = "Which rooms do you want to reserve for HackTCNJ and for eating? "
 	else
 		roomFlag = true
-		msg = "Which rooms do you want to reserve for HackTCNJ? "
+		roomPrompt = "Which rooms do you want to reserve for HackTCNJ? "
 	end
 
 	for j in roomsTable
-		if fill #if a ceremony is next, it looks for rooms that can fit everyone
+		if fitAllFlag # if a ceremony is next, it looks for rooms that can fit everyone
 			if j["Capacity"].to_i >= attendees
-				avail << j
+				availableRooms << j
 			end
 		else 
 			if snackTime # looks for rooms that can fit people eating
 				if j["Capacity"].to_i >= hungryCount && j["Food Allowed"] == "Yes"
-					avail << j
+					availableRooms << j
 				end
 			end
 			if j["Capacity"].to_i >= compCount && j["Computers Available"] == "Yes" #looks for rooms that can fit people that need computers
-				avail << j
-			elsif j["Priority"] == "Computer Science" #the rest of the rooms
-				avail << j
+				availableRooms << j
+			elsif j["Priority"] == "Computer Science" # the rest of the rooms
+				availableRooms << j
 			end
 		end
 	end
 	totalRoom = 0
 	totalFood = 0
 	totalComp = 0
-	for k in 0..(avail.length - 1)
+	for k in 0..(availableRooms.length - 1)
 		j=0
-		#checks for the right line in schedule.csv and sees if the slot is open
+		# checks for the right line in schedule.csv and sees if the slot is open
 		while j < schedTable.length
 			if schedTable[j]["Date"] == date
-				if schedTable[j]["Room"] == avail[k][1]
-					if schedTable[j]["Building"] == avail[k][0]
+				if schedTable[j]["Room"] == availableRooms[k][1]
+					if schedTable[j]["Building"] == availableRooms[k][0]
 						if schedTable[j]["Time"] == timeStart
 							if schedTable[j]["Available"] == "true"
-								#if the slot is open, it writes down its details to be shown to the user
-								temp = []
-								temp << date
-								temp << timeStart
-								temp << schedTable[j]["Building"]
-								temp << "Room " + schedTable[j]["Room"]
-								temp << "Capacity: " + avail[k][2]
-								temp << "Computers Available: " + avail[k][3]
-								temp << "Food Allowed: " + avail[k][6]
-								if fill
+								# if the slot is open, it writes down its details to be shown to the user
+								roomOutput = [] # temp variable used to assemble output in the required format
+								roomOutput << date
+								roomOutput << timeStart
+								roomOutput << schedTable[j]["Building"]
+								roomOutput << "Room " + schedTable[j]["Room"]
+								roomOutput << "Capacity: " + availableRooms[k][2]
+								roomOutput << "Computers Available: " + availableRooms[k][3]
+								roomOutput << "Food Allowed: " + availableRooms[k][6]
+								if fitAllFlag
 									roomFlag = true
-								elsif snackTime && avail[k][6] == "Yes"
-									totalFood += avail[k][2].to_i
-								elsif avail[k][3] == "Yes"
-									totalComp += avail[k][2].to_i
+								elsif snackTime && availableRooms[k][6] == "Yes"
+									totalFood += availableRooms[k][2].to_i
+								elsif availableRooms[k][3] == "Yes"
+									totalComp += availableRooms[k][2].to_i
 								end
-								totalRoom += avail[k][2].to_i
-								puts totalRoom
-								present << temp
+								totalRoom += availableRooms[k][2].to_i
+								presentableRooms << roomOutput
 							end
 							break
 						else
-							j += 1 #incs by 1 to find the right hour
+							j += 1 # incs by 1 to find the right hour
 						end
 					else
-						j += 24 #incs by 24 to skip to the right day
+						j += 24 # incs by 24 to skip to the right day
 					end
 				else
 					j += 24
@@ -220,34 +284,47 @@ for i in 0..(runTime)
 			end
 		end			
 	end
-	#throws an error if the schedule cannot fit with schedule.csv
-	if (!roomFlag && fill) || (snackTime && totalFood < hungryCount) || (!fill && (totalComp < compCount || totalRoom < attendees))
+	# throws an error if the schedule cannot fit with schedule.csv
+	if (!roomFlag && fitAllFlag) || (snackTime && totalFood < hungryCount) || (!fitAllFlag && (totalComp < compCount || totalRoom < attendees))
 		abort("ERROR: Not enough room available for everyone with the given schedule!")
 	end
 	
-	#for printing to the user
-	for k in 0..(present.length - 1)
+	# for printing to the user
+	for k in 0..(presentableRooms.length - 1)
 		puts (k + 1).to_s + "."
-		puts present[k]
+		puts presentableRooms[k]
+		puts
 	end
-	#msg being used
-	print msg
-	if fill
-		print "(Enter one of the numbers above the dates) "
+
+	# message being used
+	print roomPrompt
+	if fitAllFlag
+		print "(Enter one of the numbers above the dates "
 	else
-		print "(Enter the number(s) above the dates seperate by commas) "
+		print "(Enter the number(s) above the dates seperate by commas "
 	end
-	input = gets.chomp
-	inputSplit = input.split(',')
+
+	print "or hit Enter to not reserve anything for this hour) "
+
+	while true
+		input = gets.chomp
+		inputSplit = input.split(',')
+		if roomReserveCheck inputSplit, fitAllFlag, presentableRooms.length
+			puts "ERROR: Incorrect format entered!"
+		else
+			break
+		end
+	end
 	for k in 0..(inputSplit.length - 1)
-		if inputSplit[k].to_i <= present.length
-			finalSched << present[inputSplit[k].to_i - 1]
+		if inputSplit[k].to_i <= presentableRooms.length
+			finalSchedule << presentableRooms[inputSplit[k].to_i - 1]
+			finalSchedule << " "
 		end
 	end
 
-	startHour = timeInc startHour
+	startHour = incrementHour startHour
 	if startHour == 0
-		date = dayInc date
+		date = incrementDay date
 	end
 end
 
@@ -255,7 +332,7 @@ print "Schedule complete! What do you want to name the schedule file? "
 fileDone = gets.chomp
 File.new(fileDone, "w+")
 File.open(fileDone, "w+") do |k|
-	k.puts(finalSched)
+	k.puts(finalSchedule)
 end
 
 puts fileDone + " created!"
