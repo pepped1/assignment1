@@ -7,6 +7,7 @@ require 'csv'
 
 Percent_attendees_eating = 0.6
 Percent_attendees_no_computer = 0.1
+One_hour_meal_interval = 6
 
 # used to sort rooms.csv
 def rooms_sort(array)
@@ -202,7 +203,7 @@ for i in 0..(runTime)
 	roomFlag = false # flag used for ceremony rooms
 	timeStart = formatTime startHour, startMin # time in readable string format
 
-	if (i % 6 == 3) && (runTime >= 6)
+	if (i % One_hour_meal_interval == (One_hour_meal_interval / 2)) && (runTime >= One_hour_meal_interval)
 		snackTime = true
 	end
 
