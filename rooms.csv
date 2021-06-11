@@ -1,0 +1,19 @@
+Building,Room,Capacity,Computers Available,Seating Available,Seating Type,Food Allowed,Priority,Room Type
+STEM,119,65,Yes,Desks;Tables,Level,No,Computer Science,Computer Lab
+STEM,220,40,No,Desks,Stadium,Yes,Mechanical Engineering,Classroom
+Green Hall,214,15,No,Large Tables;Chairs,Level,Yes,Honors Program,Conference Room
+Forcina,403,30,Yes,Tables,Level,No,Computer Science,Computer Lab
+Forcina,406,30,Yes,Tables,Level,No,Computer Science,Computer Lab
+Forcina,424,30,Yes,Tables,Level,No,Computer Science,Computer Lab
+Stem,101,25,Yes,Tables,Level,No,Computer Science,Computer Lab
+Stem,107,45,Yes,Tables,Level,No,Computer Science,Computer Lab
+Stem,112,45,Yes,Tables,Level,No,Computer Science,Computer Lab
+Stem,240,25,Yes,Tables,Level,No,Computer Science,Computer Lab
+Stem,241,25,Yes,Tables,Level,No,Computer Science,Computer Lab
+Brower Student Center,100,800,No,Chairs,Stadium,No,Administration,Event Center
+Education,115,300,No,Desks,Stadium,No,Education,Event Center
+Education,200,50,No,Chairs,Level,Yes,Education,Classroom
+Education,220,55,No,Desks,Level,Yes,Education,Classroom
+Education,221,40,No,Desks,Level,Yes,Education,Classroom
+Education,230,55,No,Chairs,Level,Yes,Education,Classroom
+Education,300,100,No,Chairs,Level,Yes,Education,Classroom
